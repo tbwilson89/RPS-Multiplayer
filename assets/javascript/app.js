@@ -1,5 +1,7 @@
 var database = firebase.database()
+var connectedRef = database.ref('.info/connected')
 var connectionsList = database.ref('/connections')
+var chatRef = database.ref('/Chat')
 var connectID = ''
 
 function resetGame(winner, player){
@@ -19,10 +21,12 @@ function resetGame(winner, player){
 }
 
 // When a user connects to the database / website
-var connectedRef = database.ref('.info/connected')
 connectedRef.on('value', (snap)=>{
   if(snap.val()){
-    var con = connectionsList.push(true)
+    var con = connectionsList.push({
+      name: 'Anonymous',
+      wins: 0,
+    })
     connectID = con.key
     con.onDisconnect().remove()
   }
@@ -139,6 +143,27 @@ connectionsList.on('value', (snap)=>{
   })
   $('#watchers').text(`Viewers: ${snap.numChildren()}`)
 })
+// Updated messages into the chat box when a new message arrives
+chatRef.on('value', function(snap){
+  var maxMessages = 15
+  if(snap.numChildren() > maxMessages){
+    var childCount = 0
+    var updates = {}
+    snap.forEach(function(child){
+      if(++childCount < snap.numChildren() - maxMessages){
+        updates[child.key] = null;
+      }
+    })
+    chatRef.update(updates)
+  }
+})
+chatRef.endAt().limitToLast(1).on('child_added', function(snap){
+  $('#message-box').append(`
+    <p>${snap.val().username}: ${snap.val().message}</p>
+    `)
+  //Keep message box scrolled to the bottom, checking height of message box always returns static value, using static num until better solution found...
+  $('#message-box').scrollTop(10000)
+})
 
 // Available to be clicked to set a user to player one.
 $('#player-one-btn').on('click', function(){
@@ -191,3 +216,21 @@ $(document).on('click', '.player-choice', function(){
     }
   })
 })
+
+$('#submit-message').on('click', function(){
+  event.preventDefault()
+  connectionsList.once('value', function(snap){
+    chatRef.push({
+      username: snap.val()[connectID].name,
+      message: $('#input-message').val(),
+    })
+  })
+  $('#input-message').val('')
+})
+
+// database.ref('/connections').update({
+//   [connectID]: {
+//     name: 'Test',
+//     wins: 0,
+//   }
+// })
