@@ -121,6 +121,7 @@ connectionsList.on('value', (snap)=>{
       })
       $('#player-one-input').css('display', 'inline-block')
       $('#player-one-btn').css('display', 'inline-block')
+      $('#player-one-wins').css('display', 'none')
     }
     if(!snap.val()[isPlayerTwo]){
       database.ref('/GameState').update({
@@ -133,6 +134,7 @@ connectionsList.on('value', (snap)=>{
       })
       $('#player-two-input').css('display', 'inline-block')
       $('#player-two-btn').css('display', 'inline-block')
+      $('#player-two-wins').css('display', 'none')
     }
   })
   $('#watchers').text(`Viewers: ${snap.numChildren()}`)
