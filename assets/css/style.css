@@ -1,0 +1,26 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+header {
+  margin-bottom: 15px;
+  padding: 25px;
+  text-align: center;
+  color: #fff;
+  background: #4f4f4f;
+  border-bottom: 5px solid #2f2f2f;
+}
+.container {
+  flex: 1;
+}
+footer {
+  padding: 25px;
+  text-align: center;
+  color: #fff;
+  background: #4f4f4f;
+  border-top: 5px solid #2f2f2f;
+}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+  <html lang="en" dir="ltr">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="./assets/css/reset.css">
+      <link rel="stylesheet" href="./assets/css/style.css">
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+      <script src="https://code.jquery.com/jquery.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/5.8.6/firebase.js"></script>
+      <script>
+        // Initialize Firebase
+        var config = {
+          apiKey: "AIzaSyCVcj_aPUhG_wV7OgCS65FwrENVO3KJo5s",
+          authDomain: "hw7-rpsmultiplayer.firebaseapp.com",
+          databaseURL: "https://hw7-rpsmultiplayer.firebaseio.com",
+          projectId: "hw7-rpsmultiplayer",
+          storageBucket: "hw7-rpsmultiplayer.appspot.com",
+          messagingSenderId: "187841788614"
+        };
+        firebase.initializeApp(config);
+      </script>
+
+
+      <title></title>
+    </head>
+  <body>
+    <header>
+      <h1 class='text-center'>Multiplayer Rock, Paper, Scissors!</h1>
+    </header>
+      <div class='container'>
+        <div class="row">
+          <div class="card col-md-4" style="width: 18rem;">
+            <div class="card-body">
+              <h5 id='player-one-active' class="card-title"></h5>
+              <h6 class="card-subtitle mb-2 text-muted">Player One</h6>
+              <p id='player-one-wins' class="card-text" style='display: none;'>test</p>
+              <input id='player-one-input' type="text" placeholder='Enter Your Name!' name="" value="">
+              <button id='player-one-btn' type="button" name="button">Enter Game</button>
+              <div class="d-flex justify-content-between">
+                <div id="player-one-options"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card col col-md-4 col-lg-4" style="width: 18rem;">
+            <div class="card-body">
+              <h2 id='game-results' class='text-center'>Waiting for players...</h2>
+            </div>
+          </div>
+          <div class="card col-md-4" style="width: 18rem;">
+            <div class="card-body">
+              <h5 id='player-two-active' class="card-title"></h5>
+              <h6 class="card-subtitle mb-2 text-muted">Player Two</h6>
+              <p id='player-two-wins' class="card-text" style='display: none;'></p>
+              <input id='player-two-input' type="text" placeholder='Enter Your Name!' name="" value="">
+              <button id='player-two-btn' type="button" name="button">Enter Game</button>
+              <div class="d-flex justify-content-between">
+                <div id="player-two-options"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row d-flex justify-content-center">
+          <div class="card col-md-4 col-lg-4" style="width: 18rem;">
+            <div class="card-body">
+              <h2 id='watchers' class='text-center'></h2>
+            </div>
+          </div>
+        </div>
+        <!-- <button id='test-btn' type="button" name="button">Test Button</button> -->
+      </div>
+
+    <footer>&copy;Copyright</footer>
+    <script src="./assets/javascript/app.js"></script>
+  </body>
+</html>
