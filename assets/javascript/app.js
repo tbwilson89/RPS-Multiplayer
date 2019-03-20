@@ -35,7 +35,7 @@ connectedRef.on('value', (snap)=>{
 database.ref().on('value', (snap)=>{
 
 })
-
+// When any data in the gamestate changes
 database.ref('/GameState').on('value', (snap)=>{
   // console.log(snapshot.val())
   $('#player-one-active').text(snap.val().playerOne.id !== '' ? snap.val().playerOne.name : "Available Player Slot!")
@@ -109,7 +109,7 @@ database.ref('/GameState').on('value', (snap)=>{
       })
   }
 })
-// When the connection list changes (users connect or disconnect)
+// When the connection list changes (users connect or disconnect, or name/wins changing)
 connectionsList.on('value', (snap)=>{
   database.ref().once('value').then((snap2)=>{
     var isPlayerOne = snap2.val().GameState.playerOne.id
@@ -142,6 +142,8 @@ connectionsList.on('value', (snap)=>{
     }
   })
   $('#watchers').text(`Viewers: ${snap.numChildren()}`)
+
+  //
 })
 // Updated messages into the chat box when a new message arrives
 chatRef.on('value', function(snap){
@@ -159,9 +161,10 @@ chatRef.on('value', function(snap){
 })
 chatRef.endAt().limitToLast(1).on('child_added', function(snap){
   $('#message-box').append(`
-    <p>${snap.val().username}: ${snap.val().message}</p>
+    <p>${snap.val().username.charAt(0).toUpperCase() + snap.val().username.slice(1)}: ${snap.val().message}</p>
     `)
-  //Keep message box scrolled to the bottom, checking height of message box always returns static value, using static num until better solution found...
+  // Keep message box scrolled to the bottom
+  // checking height of message box always returns static value, using static num until better solution found...
   $('#message-box').scrollTop(10000)
 })
 
@@ -171,7 +174,7 @@ $('#player-one-btn').on('click', function(){
      if(snap.val().GameState.playerOne.id === '' && snap.val().GameState.playerTwo.id !== connectID){
        database.ref('/GameState/playerOne').update({
            id: connectID,
-           name: $('#player-one-input').val()
+           name: snap.val().connections[connectID].name
        })
        $('#player-one-options').html(`
          <button id='player-one-rock' class='player-choice' data-choice='{"option": "rock", "player": "one"}'>Rock</button>
@@ -187,7 +190,7 @@ $('#player-two-btn').on('click', function(){
      if(snap.val().GameState.playerTwo.id === '' && snap.val().GameState.playerOne.id !== connectID){
        database.ref('/GameState/playerTwo').update({
            id: connectID,
-           name: $('#player-two-input').val()
+           name: snap.val().connections[connectID].name
        })
        $('#player-two-options').html(`
          <button id='player-two-rock' class='player-choice' data-choice='{"option": "rock", "player": "two"}'>Rock</button>
@@ -217,10 +220,20 @@ $(document).on('click', '.player-choice', function(){
   })
 })
 
+$('#submit-name-change').on('click', function(){
+  event.preventDefault()
+  if($('#input-change-name').val() !== ''){
+    database.ref(`/connections/${connectID}`).update({name: $('#input-change-name').val().trim()})
+  } else {
+    // add invalid username error
+  }
+})
+
 $('#submit-message').on('click', function(){
   event.preventDefault()
   connectionsList.once('value', function(snap){
     chatRef.push({
+      id: connectID,
       username: snap.val()[connectID].name,
       message: $('#input-message').val(),
     })

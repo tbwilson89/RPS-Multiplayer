@@ -35,7 +35,6 @@
               <h5 id='player-one-active' class="card-title"></h5>
               <h6 class="card-subtitle mb-2 text-muted">Player One</h6>
               <p id='player-one-wins' class="card-text" style='display: none;'></p>
-              <input id='player-one-input' type="text" placeholder='Enter Your Name!' name="" value="">
               <button id='player-one-btn' type="button" name="button">Enter Game</button>
               <div class="d-flex justify-content-between">
                 <div id="player-one-options"></div>
@@ -52,7 +51,6 @@
               <h5 id='player-two-active' class="card-title"></h5>
               <h6 class="card-subtitle mb-2 text-muted">Player Two</h6>
               <p id='player-two-wins' class="card-text" style='display: none;'></p>
-              <input id='player-two-input' type="text" placeholder='Enter Your Name!' name="" value="">
               <button id='player-two-btn' type="button" name="button">Enter Game</button>
               <div class="d-flex justify-content-between">
                 <div id="player-two-options"></div>
@@ -60,13 +58,25 @@
             </div>
           </div>
         </div>
+
         <div class="row d-flex justify-content-center">
           <div class="card col-md-4 col-lg-4" style="width: 18rem;">
             <div class="card-body">
               <h2 id='watchers' class='text-center'></h2>
             </div>
           </div>
+          <div class="card col-md-4 col-lg-4" style="width: 18rem;">
+            <div class="card-body">
+              <form class="input-group mb-3">
+                <input id='input-change-name' type="text" class="form-control" placeholder="Change Name" autocomplete="off" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                  <button id='submit-name-change' class="btn btn-outline-secondary" type="submit">Change Name</button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
+
         <div class="row">
           <div class="card col-md-9" style='height: 35vh;'>
             <div id='message-box' class="messages" style='height: 90%; overflow-y: scroll;'>
@@ -89,6 +99,7 @@
             <div class="row" style='height: 50%;'>
               <div class="card col-md-12" style="width: 18rem;">
                 <div class="card-body">
+
                 </div>
               </div>
             </div>
