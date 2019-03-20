@@ -35,7 +35,7 @@
               <h5 id='player-one-active' class="card-title"></h5>
               <h6 class="card-subtitle mb-2 text-muted">Player One</h6>
               <p id='player-one-wins' class="card-text" style='display: none;'></p>
-              <button id='player-one-btn' class='btn btn-success' type="button" name="button">Enter Game</button>
+              <button id='player-one-btn' class='player-join-btn btn btn-success' data-option='One' type="button" name="button">Enter Game</button>
               <div class="d-flex justify-content-between">
                 <div id="player-one-options"></div>
               </div>
@@ -51,7 +51,7 @@
               <h5 id='player-two-active' class="card-title"></h5>
               <h6 class="card-subtitle mb-2 text-muted">Player Two</h6>
               <p id='player-two-wins' class="card-text" style='display: none;'></p>
-              <button id='player-two-btn' class='btn btn-success' type="button" name="button">Enter Game</button>
+              <button id='player-two-btn' class='player-join-btn btn btn-success' data-option='Two' type="button" name="button">Enter Game</button>
               <div class="d-flex justify-content-between">
                 <div id="player-two-options"></div>
               </div>
@@ -67,6 +67,7 @@
           </div>
           <div class="card col-md-4 col-lg-4" style="width: 18rem;">
             <div class="card-body">
+              <label for="exampleInputEmail1"><b>Username:</b> <span id='current-username-display'>Anonymous</span></label>
               <form class="input-group mb-3">
                 <input id='input-change-name' type="text" class="form-control" placeholder="Change Name" autocomplete="off" aria-label="Recipient's username" aria-describedby="basic-addon2">
                 <div class="input-group-append">

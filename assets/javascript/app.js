@@ -4,6 +4,7 @@ var connectionsList = database.ref('/connections')
 var chatRef = database.ref('/Chat')
 var connectID = ''
 
+// Function to reset game state after a round and add to winning players win count.
 function resetGame(winner, player){
   database.ref('/GameState').update({
     pOneChoice: "",
@@ -32,10 +33,7 @@ connectedRef.on('value', (snap)=>{
     con.onDisconnect().remove()
   }
 })
-// When ANY information changes in the database
-database.ref().on('value', (snap)=>{
 
-})
 // When any data in the gamestate changes
 database.ref('/GameState').on('value', (snap)=>{
   // console.log(snapshot.val())
@@ -145,8 +143,6 @@ connectionsList.on('value', (snap)=>{
     }
   })
   $('#watchers').text(`Viewers: ${snap.numChildren()}`)
-
-  //
 })
 // Updated messages into the chat box when a new message arrives
 chatRef.on('value', function(snap){
@@ -171,37 +167,22 @@ chatRef.endAt().limitToLast(1).on('child_added', function(snap){
   $('#message-box').scrollTop(10000)
 })
 
-// Available to be clicked to set a user to player one.
-$('#player-one-btn').on('click', function(){
-  database.ref().once('value').then((snap)=>{
-     if(snap.val().GameState.playerOne.id === '' && snap.val().GameState.playerTwo.id !== connectID){
-       database.ref('/GameState/playerOne').update({
-           id: connectID,
-           name: snap.val().connections[connectID].name
-       })
-       $('#player-one-options').html(`
-         <button id='player-one-rock' class='player-choice btn btn-primary' data-choice='{"option": "rock", "player": "one"}'>Rock</button>
-         <button id='player-one-paper' class='player-choice btn btn-primary' data-choice='{"option": "paper", "player": "one"}'>Paper</button>
-         <button id='player-one-scissor' class='player-choice btn btn-primary' data-choice='{"option": "scissor", "player": "one"}'>Scissor</button>
-         <button id='player-one-quit' class='player-choice btn btn-danger' data-choice='{"option": "quit", "player": "One"}'>Quit</button>
-         `)
-     }
-  })
-})
-// Available to be clicked to set a user to player two.
-$('#player-two-btn').on('click', function(){
+// Enter a player into the game, either player 1 or 2 depending on which button is pressed. Display buttons for choices during play.
+$('.player-join-btn').on('click', function(){
+  var playerChoice = $(this).data('option')
+  console.log(playerChoice)
   database.ref().once('value').then((snap)=>{
      if(snap.val().GameState.playerTwo.id === '' && snap.val().GameState.playerOne.id !== connectID){
-       database.ref('/GameState/playerTwo').update({
+       database.ref(`/GameState/player${playerChoice}`).update({
            id: connectID,
            name: snap.val().connections[connectID].name,
            wins: snap.val().connections[connectID].wins,
        })
-       $('#player-two-options').html(`
-         <button id='player-two-rock' class='player-choice btn btn-primary' data-choice='{"option": "rock", "player": "two"}'>Rock</button>
-         <button id='player-two-paper' class='player-choice btn btn-primary' data-choice='{"option": "paper", "player": "two"}'>Paper</button>
-         <button id='player-two-scissor' class='player-choice btn btn-primary' data-choice='{"option": "scissor", "player": "two"}'>Scissor</button>
-         <button id='player-two-quit' class='player-choice btn btn-danger' data-choice='{"option": "quit", "player": "Two"}'>Quit</button>
+       $(`#player-${playerChoice.toLowerCase()}-options`).html(`
+         <button class='player-choice btn btn-primary' data-choice='{"option": "rock", "player": "${playerChoice}"}'>Rock</button>
+         <button class='player-choice btn btn-primary' data-choice='{"option": "paper", "player": "${playerChoice}"}'>Paper</button>
+         <button class='player-choice btn btn-primary' data-choice='{"option": "scissor", "player": "${playerChoice}"}'>Scissor</button>
+         <button class='player-choice btn btn-danger' data-choice='{"option": "quit", "player": "${playerChoice}"}'>Quit</button>
          `)
      }
   })
@@ -222,11 +203,11 @@ $(document).on('click', '.player-choice', function(){
         })
       } else {
         console.log('test')
-        if(player === 'one'){
+        if(player === 'One'){
           database.ref('/GameState').update({
             pOneChoice: option
           })
-        } else if(player === 'two'){
+        } else if(player === 'Two'){
           database.ref('/GameState').update({
             pTwoChoice: option
           })
@@ -239,7 +220,9 @@ $(document).on('click', '.player-choice', function(){
 $('#submit-name-change').on('click', function(){
   event.preventDefault()
   if($('#input-change-name').val() !== ''){
-    database.ref(`/connections/${connectID}`).update({name: $('#input-change-name').val().trim()})
+    var newName = $('#input-change-name').val().trim()
+    database.ref(`/connections/${connectID}`).update({name: newName})
+    $('#current-username-display').text(newName)
   } else {
     // add invalid username error
   }
