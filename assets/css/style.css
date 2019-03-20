@@ -33,6 +33,9 @@ footer {
   overflow-y: scroll;
   overflow-x: hidden;
 }
+#chat-active-users > div {
+  padding-bottom: 5px;
+}
 .chat-display-username {
   padding: 3px 0;
 }

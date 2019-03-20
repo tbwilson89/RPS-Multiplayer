@@ -30,6 +30,7 @@ connectedRef.on('value', (snap)=>{
       wins: 0,
     })
     connectID = con.key
+    // con.onDisconnect().set('value', console.log('testing disconnect function'))
     con.onDisconnect().remove()
   }
 })
@@ -142,6 +143,24 @@ connectionsList.on('value', (snap)=>{
       })
     }
   })
+  //Remove users that have disconnected
+  for(key in snap.val()){
+    var childArr = $('#chat-active-users').children()
+    $('#chat-active-users').children().each(function(){
+      console.log($(this).data('user').id)
+      if(!snap.val()[$(this).data('user').id]){
+        $(this).remove()
+      }
+    })
+    // Add new users
+    if ($(`#${key}`).text() === ''){
+      var displayUserDiv = $(`<div id=${key} class='card col-md-12' data-user='{"id": "${key}"}'>${snap.val()[key].name}</div>`)
+      $('#chat-active-users').append(displayUserDiv)
+      // Update usernames when they are changed
+    } else if ($(`#${key}`).text() !== snap.val()[key].name){
+      $(`#${key}`).text(snap.val()[key].name)
+    }
+  }
   $('#watchers').text(`Viewers: ${snap.numChildren()}`)
 })
 // Updated messages into the chat box when a new message arrives
