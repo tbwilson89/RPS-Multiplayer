@@ -11,10 +11,11 @@ function resetGame(winner, player){
   })
   database.ref().update({paused: false})
   if(connectID === winner){
-    database.ref('/GameState').once('value', (snap)=>{
-      var wins = snap.val()[player].wins
-      wins++
-      database.ref(`/GameState/${player}`).update({wins: wins})
+    database.ref().once('value', (snap)=>{
+      var newWins = snap.val().connections[connectID].wins
+      newWins++
+      database.ref(`connections/${connectID}`).update({wins: newWins})
+      database.ref(`/GameState/${player}`).update({wins: newWins})
     })
   }
   $('#game-results').text('Choose your weapon!')
@@ -91,14 +92,22 @@ database.ref('/GameState').on('value', (snap)=>{
     setTimeout(() => resetGame(winner, player), 5000)
   }
   if(snap.val().playerOne.id !== ''){
-    $('#player-one-input').css('display', 'none')
     $('#player-one-btn').css('display', 'none')
     $('#player-one-wins').css('display', 'inline-block')
+  } else {
+    $('#player-one-options').empty()
+    $('#player-one-input').css('display', 'inline-block')
+    $('#player-one-btn').css('display', 'inline-block')
+    $('#player-one-wins').css('display', 'none')
   }
   if(snap.val().playerTwo.id !== ''){
-    $('#player-two-input').css('display', 'none')
     $('#player-two-btn').css('display', 'none')
     $('#player-two-wins').css('display', 'inline-block')
+  } else {
+    $('#player-two-options').empty()
+    $('#player-two-input').css('display', 'inline-block')
+    $('#player-two-btn').css('display', 'inline-block')
+    $('#player-two-wins').css('display', 'none')
   }
   if(snap.val().playerOne.id === '' || snap.val().playerTwo.id === ''){
       $('#game-results').text('Waiting for players...')
@@ -123,9 +132,6 @@ connectionsList.on('value', (snap)=>{
         },
         pOneChoice: ""
       })
-      $('#player-one-input').css('display', 'inline-block')
-      $('#player-one-btn').css('display', 'inline-block')
-      $('#player-one-wins').css('display', 'none')
     }
     if(!snap.val()[isPlayerTwo]){
       database.ref('/GameState').update({
@@ -136,9 +142,6 @@ connectionsList.on('value', (snap)=>{
         },
         pTwoChoice: ""
       })
-      $('#player-two-input').css('display', 'inline-block')
-      $('#player-two-btn').css('display', 'inline-block')
-      $('#player-two-wins').css('display', 'none')
     }
   })
   $('#watchers').text(`Viewers: ${snap.numChildren()}`)
@@ -177,9 +180,10 @@ $('#player-one-btn').on('click', function(){
            name: snap.val().connections[connectID].name
        })
        $('#player-one-options').html(`
-         <button id='player-one-rock' class='player-choice' data-choice='{"option": "rock", "player": "one"}'>Rock</button>
-         <button id='player-one-paper' class='player-choice' data-choice='{"option": "paper", "player": "one"}'>Paper</button>
-         <button id='player-one-scissor' class='player-choice' data-choice='{"option": "scissor", "player": "one"}'>Scissor</button>
+         <button id='player-one-rock' class='player-choice btn btn-primary' data-choice='{"option": "rock", "player": "one"}'>Rock</button>
+         <button id='player-one-paper' class='player-choice btn btn-primary' data-choice='{"option": "paper", "player": "one"}'>Paper</button>
+         <button id='player-one-scissor' class='player-choice btn btn-primary' data-choice='{"option": "scissor", "player": "one"}'>Scissor</button>
+         <button id='player-one-quit' class='player-choice btn btn-danger' data-choice='{"option": "quit", "player": "One"}'>Quit</button>
          `)
      }
   })
@@ -190,12 +194,14 @@ $('#player-two-btn').on('click', function(){
      if(snap.val().GameState.playerTwo.id === '' && snap.val().GameState.playerOne.id !== connectID){
        database.ref('/GameState/playerTwo').update({
            id: connectID,
-           name: snap.val().connections[connectID].name
+           name: snap.val().connections[connectID].name,
+           wins: snap.val().connections[connectID].wins,
        })
        $('#player-two-options').html(`
-         <button id='player-two-rock' class='player-choice' data-choice='{"option": "rock", "player": "two"}'>Rock</button>
-         <button id='player-two-paper' class='player-choice' data-choice='{"option": "paper", "player": "two"}'>Paper</button>
-         <button id='player-two-scissor' class='player-choice' data-choice='{"option": "scissor", "player": "two"}'>Scissor</button>
+         <button id='player-two-rock' class='player-choice btn btn-primary' data-choice='{"option": "rock", "player": "two"}'>Rock</button>
+         <button id='player-two-paper' class='player-choice btn btn-primary' data-choice='{"option": "paper", "player": "two"}'>Paper</button>
+         <button id='player-two-scissor' class='player-choice btn btn-primary' data-choice='{"option": "scissor", "player": "two"}'>Scissor</button>
+         <button id='player-two-quit' class='player-choice btn btn-danger' data-choice='{"option": "quit", "player": "Two"}'>Quit</button>
          `)
      }
   })
@@ -207,14 +213,24 @@ $(document).on('click', '.player-choice', function(){
     if(!snap.val().paused){
       var player = $(this).data('choice').player
       var option = $(this).data('choice').option
-      if(player === 'one'){
-        database.ref('/GameState').update({
-          pOneChoice: option
+      console.log($(this).data('choice').option)
+      if(option === 'quit'){
+        database.ref(`/GameState/player${player}`).update({
+          id: '',
+          name: '',
+          wins: 0,
         })
-      } else if(player === 'two'){
-        database.ref('/GameState').update({
-          pTwoChoice: option
-        })
+      } else {
+        console.log('test')
+        if(player === 'one'){
+          database.ref('/GameState').update({
+            pOneChoice: option
+          })
+        } else if(player === 'two'){
+          database.ref('/GameState').update({
+            pTwoChoice: option
+          })
+        }
       }
     }
   })
@@ -227,6 +243,7 @@ $('#submit-name-change').on('click', function(){
   } else {
     // add invalid username error
   }
+  $('#input-change-name').val('')
 })
 
 $('#submit-message').on('click', function(){
@@ -240,10 +257,3 @@ $('#submit-message').on('click', function(){
   })
   $('#input-message').val('')
 })
-
-// database.ref('/connections').update({
-//   [connectID]: {
-//     name: 'Test',
-//     wins: 0,
-//   }
-// })
