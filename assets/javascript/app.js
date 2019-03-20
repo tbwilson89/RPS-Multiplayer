@@ -143,9 +143,9 @@ connectionsList.on('value', (snap)=>{
       })
     }
   })
-  //Remove users that have disconnected
   for(key in snap.val()){
-    var childArr = $('#chat-active-users').children()
+    console.log('In key loop')
+    //Remove users that have disconnected
     $('#chat-active-users').children().each(function(){
       console.log($(this).data('user').id)
       if(!snap.val()[$(this).data('user').id]){
@@ -154,10 +154,12 @@ connectionsList.on('value', (snap)=>{
     })
     // Add new users
     if ($(`#${key}`).text() === ''){
+      console.log('Creating username chat element and appending for: ' + key)
       var displayUserDiv = $(`<div id=${key} class='card col-md-12' data-user='{"id": "${key}"}'>${snap.val()[key].name}</div>`)
       $('#chat-active-users').append(displayUserDiv)
       // Update usernames when they are changed
     } else if ($(`#${key}`).text() !== snap.val()[key].name){
+      console.log('Updating name for: ' + key)
       $(`#${key}`).text(snap.val()[key].name)
     }
   }
