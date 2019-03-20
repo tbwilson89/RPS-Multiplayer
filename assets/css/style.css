@@ -28,6 +28,15 @@ footer {
 #message-box {
   margin: 10px 5px;
 }
+
+#chat-active-users {
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+.chat-display-username {
+  padding: 3px 0;
+}
+
 .input-group-apped {
   margin: 0 5px;
 }

@@ -170,7 +170,6 @@ chatRef.endAt().limitToLast(1).on('child_added', function(snap){
 // Enter a player into the game, either player 1 or 2 depending on which button is pressed. Display buttons for choices during play.
 $('.player-join-btn').on('click', function(){
   var playerChoice = $(this).data('option')
-  console.log(playerChoice)
   database.ref().once('value').then((snap)=>{
      if(snap.val().GameState.playerTwo.id === '' && snap.val().GameState.playerOne.id !== connectID){
        database.ref(`/GameState/player${playerChoice}`).update({
@@ -194,15 +193,18 @@ $(document).on('click', '.player-choice', function(){
     if(!snap.val().paused){
       var player = $(this).data('choice').player
       var option = $(this).data('choice').option
-      console.log($(this).data('choice').option)
       if(option === 'quit'){
+        if (player === 'One'){
+          database.ref('GameState').update({pOneChoice: ""})
+        } else {
+          database.ref('GameState').update({pTwoChoice: ""})
+        }
         database.ref(`/GameState/player${player}`).update({
           id: '',
           name: '',
           wins: 0,
         })
       } else {
-        console.log('test')
         if(player === 'One'){
           database.ref('/GameState').update({
             pOneChoice: option
