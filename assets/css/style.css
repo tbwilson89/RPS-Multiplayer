@@ -20,9 +20,7 @@ header {
 footer {
   padding: 25px;
   text-align: center;
-  color: #fff;
-  background: #4f4f4f;
-  border-top: 5px solid #2f2f2f;
+  background: #e9ecef;
 }
 
 #message-box {
