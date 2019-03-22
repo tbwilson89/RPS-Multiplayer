@@ -9,7 +9,7 @@ var connectID = ''
 
 
 // Function to reset game state after a round and add to winning players win count.
-function resetGame(winner, player){
+function resetGame(winner, winPlayer, loser, losePlayer){
   database.ref('/GameState').update({
     pOneChoice: "",
     pTwoChoice: "",
@@ -20,7 +20,15 @@ function resetGame(winner, player){
       var newWins = snap.val().connections[connectID].wins
       newWins++
       database.ref(`connections/${connectID}`).update({wins: newWins})
-      database.ref(`/GameState/${player}`).update({wins: newWins})
+      database.ref(`/GameState/${winPlayer}`).update({wins: newWins})
+    })
+  }
+  if(connectID === loser){
+    database.ref().once('value', (snap)=>{
+      var newLosses = snap.val().connections[connectID].losses
+      newLosses++
+      database.ref(`connections/${connectID}`).update({losses: newLosses})
+      database.ref(`/GameState/${losePlayer}`).update({losses: newLosses})
     })
   }
   $('#game-results').text('Choose your weapon!')
@@ -36,6 +44,9 @@ function createUserReference(){
         if(snapConnections.val().wins !== snapUser.val().wins){
           database.ref(`/Users/${snapConnections.val().username}`).update({wins: snapConnections.val().wins})
         }
+        if(snapConnections.val().losses !== snapUser.val().losses){
+          database.ref(`/Users/${snapConnections.val().username}`).update({losses: snapConnections.val().losses})
+        }
       }
       $('#current-username-display').text(snapConnections.val().name)
     })
@@ -48,6 +59,7 @@ connectedRef.on('value', (snap)=>{
     var con = connectionsList.push({
       name: 'Anonymous',
       wins: 0,
+      losses: 0,
     })
     connectID = con.key
 
@@ -60,8 +72,10 @@ connectedRef.on('value', (snap)=>{
 database.ref('/GameState').on('value', (snap)=>{
   $('#player-one-active').text(snap.val().playerOne.id !== '' ? snap.val().playerOne.name : "Available Player Slot!")
   $('#player-one-wins').text(`Wins: ${snap.val().playerOne.wins}`)
+  $('#player-one-losses').text(`Losses: ${snap.val().playerOne.losses}`)
   $('#player-two-active').text(snap.val().playerTwo.id !== '' ? snap.val().playerTwo.name : "Available Player Slot!")
   $('#player-two-wins').text(`Wins: ${snap.val().playerTwo.wins}`)
+  $('#player-two-losses').text(`Losses: ${snap.val().playerTwo.losses}`)
 
   var playerOneChoice = snap.val().pOneChoice
   var playerTwoChoice = snap.val().pTwoChoice
@@ -81,52 +95,69 @@ database.ref('/GameState').on('value', (snap)=>{
       //Player Two Wins
       $('#game-results').text('Player Two Wins!')
       winner = snap.val().playerTwo.id
-      player = 'playerTwo'
+      loser = snap.val().playerOne.id
+      winPlayer = 'playerTwo'
+      losePlayer = 'playerOne'
     } else if (playerOneChoice === 'rock' && playerTwoChoice === 'scissor'){
       //Player One Wins
       $('#game-results').text('Player One Wins!')
       winner = snap.val().playerOne.id
-      player = 'playerOne'
+      loser = snap.val().playerTwo.id
+      winPlayer = 'playerOne'
+      losePlayer = 'playerTwo'
     } else if (playerOneChoice === 'paper' && playerTwoChoice == 'rock'){
       //Player One wins
       $('#game-results').text('Player One Wins!')
       winner = snap.val().playerOne.id
-      player = 'playerOne'
+      loser = snap.val().playerTwo.id
+      winPlayer = 'playerOne'
+      losePlayer = 'playerTwo'
     } else if (playerOneChoice === 'paper' && playerTwoChoice == 'scissor'){
       //Player Two wins
       $('#game-results').text('Player Two Wins!')
       winner = snap.val().playerTwo.id
-      player = 'playerTwo'
+      loser = snap.val().playerOne.id
+      winPlayer = 'playerTwo'
+      losePlayer = 'playerOne'
     } else if (playerOneChoice === 'scissor' && playerTwoChoice == 'rock'){
       //Player Two wins
       $('#game-results').text('Player Two Wins!')
       winner = snap.val().playerTwo.id
-      player = 'playerTwo'
+      loser = snap.val().playerOne.id
+      winPlayer = 'playerTwo'
+      losePlayer = 'playerOne'
     } else if (playerOneChoice === 'scissor' && playerTwoChoice == 'paper'){
       //Player One wins
       $('#game-results').text('Player One Wins!')
       winner = snap.val().playerOne.id
-      player = 'playerOne'
+      loser = snap.val().playerTwo.id
+      winPlayer = 'playerOne'
+      losePlayer = 'playerTwo'
     }
-    setTimeout(() => resetGame(winner, player), 5000)
+    setTimeout(() => resetGame(winner, winPlayer, loser, losePlayer), 5000)
   }
   if(snap.val().playerOne.id !== ''){
     $('#player-one-btn').css('display', 'none')
     $('#player-one-wins').css('display', 'inline-block')
+    $('#player-one-losses').css('display', 'inline-block')
   } else {
     $('#player-one-options').empty()
     $('#player-one-input').css('display', 'inline-block')
     $('#player-one-btn').css('display', 'inline-block')
     $('#player-one-wins').css('display', 'none')
+    $('#player-one-losses').css('display', 'none')
+
   }
   if(snap.val().playerTwo.id !== ''){
     $('#player-two-btn').css('display', 'none')
     $('#player-two-wins').css('display', 'inline-block')
+    $('#player-two-losses').css('display', 'inline-block')
   } else {
     $('#player-two-options').empty()
     $('#player-two-input').css('display', 'inline-block')
     $('#player-two-btn').css('display', 'inline-block')
     $('#player-two-wins').css('display', 'none')
+    $('#player-two-losses').css('display', 'none')
   }
   if(snap.val().playerOne.id === '' || snap.val().playerTwo.id === ''){
       $('#game-results').text('Waiting for players...')
@@ -148,6 +179,7 @@ connectionsList.on('value', (snap)=>{
           id: "",
           name: "",
           wins: 0,
+          losses: 0,
         },
         pOneChoice: ""
       })
@@ -158,6 +190,7 @@ connectionsList.on('value', (snap)=>{
           id: "",
           name: "",
           wins: 0,
+          losses: 0,
         },
         pTwoChoice: ""
       })
@@ -215,6 +248,7 @@ $('.player-join-btn').on('click', function(){
            id: connectID,
            name: snap.val().connections[connectID].name,
            wins: snap.val().connections[connectID].wins,
+           losses: snap.val().connections[connectID].losses,
        })
        $(`#player-${playerChoice.toLowerCase()}-options`).html(`
          <button class='player-choice btn btn-primary' data-choice='{"option": "rock", "player": "${playerChoice}"}'>Rock</button>
@@ -242,6 +276,7 @@ $(document).on('click', '.player-choice', function(){
           id: '',
           name: '',
           wins: 0,
+          losses: 0,
         })
       } else {
         if(player === 'One'){
@@ -297,18 +332,21 @@ $('#google-login-btn').on('click', function(){
           username: username,
           name: snap.val()[username].name,
           wins: snap.val()[username].wins,
+          losses: snap.val()[username].losses,
         })
       } else {
         database.ref('/Users').update({
           [username]: {
             name: username,
             wins: 0,
+            losses: 0,
           }
         })
         database.ref(`/connections/${connectID}`).update({
           username: username,
           name: username,
           wins: 0,
+          losses: 0,
         })
       }
     })
