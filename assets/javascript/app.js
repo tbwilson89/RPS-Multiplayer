@@ -30,10 +30,7 @@ function createUserReference(){
   database.ref(`connections/${connectID}`).on('value', function(snapConnections){
     database.ref(`/Users/${snapConnections.val().username}`).once('value', function(snapUser){
       if(snapUser.val()){
-        console.log(snapConnections.val())
-        console.log(snapUser.val())
         if(snapConnections.val().name !== snapUser.val().name){
-          console.log('Inside if statement where they do not match...')
           database.ref(`/Users/${snapConnections.val().username}`).update({name: snapConnections.val().name})
         }
       }
@@ -58,7 +55,6 @@ connectedRef.on('value', (snap)=>{
 
 // When any data in the gamestate changes
 database.ref('/GameState').on('value', (snap)=>{
-  // console.log(snapshot.val())
   $('#player-one-active').text(snap.val().playerOne.id !== '' ? snap.val().playerOne.name : "Available Player Slot!")
   $('#player-one-wins').text(`Wins: ${snap.val().playerOne.wins}`)
   $('#player-two-active').text(snap.val().playerTwo.id !== '' ? snap.val().playerTwo.name : "Available Player Slot!")
