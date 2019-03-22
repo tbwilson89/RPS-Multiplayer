@@ -33,6 +33,9 @@ function createUserReference(){
         if(snapConnections.val().name !== snapUser.val().name){
           database.ref(`/Users/${snapConnections.val().username}`).update({name: snapConnections.val().name})
         }
+        if(snapConnections.val().wins !== snapUser.val().wins){
+          database.ref(`/Users/${snapConnections.val().username}`).update({wins: snapConnections.val().wins})
+        }
       }
       $('#current-username-display').text(snapConnections.val().name)
     })
@@ -205,8 +208,9 @@ chatRef.endAt().limitToLast(1).on('child_added', function(snap){
 // Enter a player into the game, either player 1 or 2 depending on which button is pressed. Display buttons for choices during play.
 $('.player-join-btn').on('click', function(){
   var playerChoice = $(this).data('option')
+
   database.ref().once('value').then((snap)=>{
-     if(snap.val().GameState.playerTwo.id === '' && snap.val().GameState.playerOne.id !== connectID){
+     if(snap.val().GameState[`player${playerChoice}`].id === '' && snap.val().GameState.playerOne.id !== connectID){
        database.ref(`/GameState/player${playerChoice}`).update({
            id: connectID,
            name: snap.val().connections[connectID].name,
