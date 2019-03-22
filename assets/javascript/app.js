@@ -3,8 +3,10 @@ var provider = new firebase.auth.GoogleAuthProvider();
 
 var connectedRef = database.ref('.info/connected')
 var connectionsList = database.ref('/connections')
+
 var chatRef = database.ref('/Chat')
 var connectID = ''
+
 
 // Function to reset game state after a round and add to winning players win count.
 function resetGame(winner, player){
@@ -23,6 +25,22 @@ function resetGame(winner, player){
   }
   $('#game-results').text('Choose your weapon!')
 }
+function createUserReference(){
+  // When a users name or wins changes, update persistent log in data if available, also update username display on page.
+  database.ref(`connections/${connectID}`).on('value', function(snapConnections){
+    database.ref(`/Users/${snapConnections.val().username}`).once('value', function(snapUser){
+      if(snapUser.val()){
+        console.log(snapConnections.val())
+        console.log(snapUser.val())
+        if(snapConnections.val().name !== snapUser.val().name){
+          console.log('Inside if statement where they do not match...')
+          database.ref(`/Users/${snapConnections.val().username}`).update({name: snapConnections.val().name})
+        }
+      }
+      $('#current-username-display').text(snapConnections.val().name)
+    })
+  })
+}
 
 // When a user connects to the database / website
 connectedRef.on('value', (snap)=>{
@@ -32,7 +50,8 @@ connectedRef.on('value', (snap)=>{
       wins: 0,
     })
     connectID = con.key
-    // con.onDisconnect().set('value', console.log('testing disconnect function'))
+
+    createUserReference()
     con.onDisconnect().remove()
   }
 })
@@ -163,6 +182,7 @@ connectionsList.on('value', (snap)=>{
   }
   $('#watchers').text(`Viewers: ${snap.numChildren()}`)
 })
+
 // Updated messages into the chat box when a new message arrives
 chatRef.on('value', function(snap){
   var maxMessages = 15
@@ -179,7 +199,7 @@ chatRef.on('value', function(snap){
 })
 chatRef.endAt().limitToLast(1).on('child_added', function(snap){
   $('#message-box').append(`
-    <p>${snap.val().username.charAt(0).toUpperCase() + snap.val().username.slice(1)}: ${snap.val().message}</p>
+    <p><b>${snap.val().username.charAt(0).toUpperCase() + snap.val().username.slice(1)}:</b> ${snap.val().message}</p>
     `)
   // Keep message box scrolled to the bottom
   // checking height of message box always returns static value, using static num until better solution found...
@@ -243,7 +263,6 @@ $('#submit-name-change').on('click', function(){
   if($('#input-change-name').val() !== ''){
     var newName = $('#input-change-name').val().trim()
     database.ref(`/connections/${connectID}`).update({name: newName})
-    $('#current-username-display').text(newName)
   } else {
     // add invalid username error
   }
@@ -265,13 +284,34 @@ $('#submit-message').on('click', function(){
 //Testing Google Auth
 $('#google-login-btn').on('click', function(){
   event.preventDefault()
-  console.log('testing auth')
   firebase.auth().signInWithPopup(provider).then(function(result) {
     // This gives you a Google Access Token. You can use it to access the Google API.
     var token = result.credential.accessToken;
     // The signed-in user info.
     var user = result.user;
-    console.log(user)
+    var username = user.email.substring(0, user.email.indexOf('@'))
+
+    database.ref('/Users').once('value', function(snap){
+      if(snap.val()[username]){
+        database.ref(`/connections/${connectID}`).update({
+          username: username,
+          name: snap.val()[username].name,
+          wins: snap.val()[username].wins,
+        })
+      } else {
+        database.ref('/Users').update({
+          [username]: {
+            name: username,
+            wins: 0,
+          }
+        })
+        database.ref(`/connections/${connectID}`).update({
+          username: username,
+          name: username,
+          wins: 0,
+        })
+      }
+    })
     // ...
   }).catch(function(error) {
     // Handle Errors here.
