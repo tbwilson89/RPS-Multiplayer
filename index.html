@@ -7,7 +7,10 @@
       <link rel="stylesheet" href="./assets/css/style.css">
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
       <script src="https://code.jquery.com/jquery.js"></script>
-      <script src="https://www.gstatic.com/firebasejs/5.8.6/firebase.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/5.9.1/firebase.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/5.9.1/firebase-app.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/5.9.1/firebase-auth.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/5.9.1/firebase-database.js"></script>
       <script>
         // Initialize Firebase
         var config = {
@@ -62,7 +65,17 @@
           </div>
         </div>
 
+
         <div class="row d-flex justify-content-center">
+          <div class="card col-md-4 col-lg-4" style="width: 18rem;">
+            <div class="card-body text-center">
+              <form class="input-group mb-3">
+                <div class='text-center'>
+                  <button id='google-login-btn' class="btn btn-primary" type="submit">Google Log In</button>
+                </div>
+              </form>
+            </div>
+          </div>
           <div class="card col-md-4 col-lg-4" style="width: 18rem;">
             <div class="card-body">
               <h2 id='watchers' class='text-center'></h2>
